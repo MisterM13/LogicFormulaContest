@@ -25,7 +25,10 @@ import sys
 
 
 
-var = [" a "," b "," c "," d "]
+var = [" a "," b "," c "," d "] #the original var
+originalvar = True  #if not using the original var put this to false
+#!!! IMPORTANT: if making own var array, make shure you make spaces on the left and the right of the variable !!!
+#var = [" A "," B "," C "]
 #var = [" x "," y "," z "]
 concat = ["\\land","\\lor","\\rightarrow", "\\leftrightarrow" ]
 neg = "\\lnot"
@@ -273,140 +276,151 @@ chiForm[189] = "( ( a \\lor d ) \\leftrightarrow c )"
 					
 # creating separate knowledgebase with most common short formulas					
 def kbBuilderFind(phi):
-	vars = ["a","b","c","d","\\lnot a","\\lnot b","\\lnot c","\\lnot d"]
+	global var
+	#vars = ["a","b","c","d","\\lnot a","\\lnot b","\\lnot c","\\lnot d"]
+	vars = []
+	for v in var:
+		vars.append(v)
+		vars.append("\\lnot"+v)
+	maxform = "n o f o r m u l a h a s b e e n f o u n d s o f a r y o u h a v e a v e r y h u g e p r o b l e m"
+	print("ground vars for building formulas: ",vars)
 	# Do not make more than 4 X and 3 O in baseForms !!! As we would need mor loops, which means more calculation power/time needed.
 	baseForms = ["( X O X )", "( ( X O X ) O X )","( ( ( X O X ) O X ) O X )", "( ( X O X ) O ( X O X ) )"," X ","\\lnot ( X O X )","\\lnot ( ( X O X ) O X )","\\lnot ( ( ( X O X ) O X ) O X )","\\lnot ( ( X O X ) O ( X O X ) )"]
 	kblen = 2**chilen #len(vars)**4*len(concat)**3*len(baseForms) # can not get more than 2^16 different truth values
-	kbformula = [""]*kblen 				#array for formulas
-	kbTruthArrays = [[""]*chilen]*kblen #array for truthvalues
-	z = 0
-	rd = 0
-	for a in vars:
-		for b in vars:
-			print(z, "of",kblen,"done... Round:",rd,"/64")
-			rd+=1
-			for c in vars:
-				for d in vars:
-					for o1 in concat:
-						for o2 in concat:
-							for o3 in concat:
-								for f in baseForms: # inserting all the Values into the generic base Formulas (arr baseForms)
-									kformula = f
-									x = kformula.find("X")
-									#print(kformula,x,a)
-									#print(kformula[0:x] + a +kformula[x+1::])
-									r = 0
-									while(x > 0):
-										if(r == 0):
-											kformula = kformula[0:x] + d +kformula[x+1::] 
-											r+=1
-										elif(r == 1):
-											kformula = kformula[0:x] + c +kformula[x+1::]
-											r+=1
-										elif(r == 2):
-											kformula = kformula[0:x] + b +kformula[x+1::]
-											r+=1
-										else:
-											kformula = kformula[0:x] + a +kformula[x+1::]
-											r+=1
+	if(len(var)>4):
+		print("This Formula has too many variables for the formula builder...")
+	else:
+		print("Assigning the Arrays...")
+		kbformula = [""]*kblen 				#array for formulas
+		kbTruthArrays = [[""]*chilen]*kblen #array for truthvalues
+		print("Arrays assigned. Generating Formulas...")
+		z = 0
+		rd = 0
+		for a in vars:
+			for b in vars:
+				print(z, "of",kblen,"done... Round:",rd,"/64")
+				rd+=1
+				for c in vars:
+					for d in vars:
+						for o1 in concat:
+							for o2 in concat:
+								for o3 in concat:
+									for f in baseForms: # inserting all the Values into the generic base Formulas (arr baseForms)
+										kformula = f
 										x = kformula.find("X")
-										#print("kx",kformula)
-									r = 0
-									o = kformula.find("O")
-									while(o > 0):
-										if(r == 0):
-											kformula = kformula[0:o] +" "+ o3 +kformula[o+1::]
-											r+=1
-										elif(r == 1):
-											kformula = kformula[0:o] +" "+ o2 +kformula[o+1::]
-											r+=1
-										else:
-											kformula = kformula[0:o] +" "+ o1 +kformula[o+1::]
-											r+=1
+										#print(kformula,x,a)
+										#print(kformula[0:x] + a +kformula[x+1::])
+										r = 0
+										while(x > 0):
+											if(r == 0):
+												kformula = kformula[0:x] + d +kformula[x+1::] 
+												r+=1
+											elif(r == 1):
+												kformula = kformula[0:x] + c +kformula[x+1::]
+												r+=1
+											elif(r == 2):
+												kformula = kformula[0:x] + b +kformula[x+1::]
+												r+=1
+											else:
+												kformula = kformula[0:x] + a +kformula[x+1::]
+												r+=1
+											x = kformula.find("X")
+											#print("kx",kformula)
+										r = 0
 										o = kformula.find("O")
-										#print("k",kformula)
-									cleanformula = kformula.replace("  "," ")
-									cleanformula = cleanformula.replace("  "," ")
-									truthArray = getTruthArray(cleanformula)
-									same = False
-									for i in range(0,z):
-										if(cleanformula == kbformula[i]):
-											same = True
+										while(o > 0):
+											if(r == 0):
+												kformula = kformula[0:o] +" "+ o3 +kformula[o+1::]
+												r+=1
+											elif(r == 1):
+												kformula = kformula[0:o] +" "+ o2 +kformula[o+1::]
+												r+=1
+											else:
+												kformula = kformula[0:o] +" "+ o1 +kformula[o+1::]
+												r+=1
+											o = kformula.find("O")
+											#print("k",kformula)
+										cleanformula = kformula.replace("  "," ")
+										cleanformula = cleanformula.replace("  "," ")
+										truthArray = getTruthArray(cleanformula)
+										same = False
+										for i in range(0,z):
+											if(cleanformula == kbformula[i]):
+												same = True
+												break
+											elif(kbTruthArrays[i] == truthArray):
+												#print("sametruth")
+												same = True
+												if(getLen(cleanformula) < getLen(kbformula[i])):
+													#print("shorter formula found", kbformula[i],"  |||  ",cleanformula)
+													kbformula[i] = cleanformula
+												break
+										if(not same):		
+											kbformula[z] = cleanformula
+											#print("kb",kbformula[z])
+											kbTruthArrays[z] = truthArray
+											#print(kbTruthArrays[z],kbformula[z])
+											z+=1
+										if(z==2**chilen):
 											break
-										elif(kbTruthArrays[i] == truthArray):
-											#print("sametruth")
-											same = True
-											if(getLen(cleanformula) < getLen(kbformula[i])):
-												#print("shorter formula found", kbformula[i],"  |||  ",cleanformula)
-												kbformula[i] = cleanformula
 											break
-									if(not same):		
-										kbformula[z] = cleanformula
-										#print("kb",kbformula[z])
-										kbTruthArrays[z] = truthArray
-										#print(kbTruthArrays[z],kbformula[z])
-										z+=1
-									if(z==2**chilen):
-										break
-										break
 
-	print("successfully built Formulas :-)")
-	print("total Formulas:",z)
-	print("Calculating TruthArrays")
-	p = int(z/8)
-	s = 0
-	maxform = "n o f o r m u l a h a s b e e n f o u n d s o f a r y o u h a v e a v e r y h u g e p r o b l e m"
-	maxchi = [-1]*chilen
-	for i in range(0,z):
-		if(i == p):
-			print("1/8 done")
-		elif(i == 2*p):
-			print("2/8 done")
-		elif(i == 3*p):
-			print("3/8 done")
-		elif(i == 4*p):
-			print("4/8 done")
-		elif(i == 5*p):
-			print("5/8 done")
-		elif(i == 6*p):
-			print("6/8 done")
-		elif(i == 7*p):
-			print("7/8 done")
-		score = scoreForm(phi, kbTruthArrays[i])
-		print(kbTruthArrays[i],score,getLen(kbformula[i]),kbformula[i])  #printout all formulas
-		if(score > s ):	#finds nearest formula
-			s = score
-			#print(len(cleanformula),len(maxform),cleanformula,maxform)
-			maxform = kbformula[i]
-			maxchi = kbTruthArrays[i]
-		elif(score == s): #finds equal formula
-			if(getLen(cleanformula) < getLen(maxform)): #takes shorter equal formula
+		print("successfully built Formulas :-)")
+		print("total Formulas:",z)
+		print("Calculating TruthArrays")
+		p = int(z/8)
+		s = 0
+		maxchi = [-1]*chilen
+		for i in range(0,z):
+			if(i == p):
+				print("1/8 done")
+			elif(i == 2*p):
+				print("2/8 done")
+			elif(i == 3*p):
+				print("3/8 done")
+			elif(i == 4*p):
+				print("4/8 done")
+			elif(i == 5*p):
+				print("5/8 done")
+			elif(i == 6*p):
+				print("6/8 done")
+			elif(i == 7*p):
+				print("7/8 done")
+			score = scoreForm(phi, kbTruthArrays[i])
+			print(kbTruthArrays[i],score,getLen(kbformula[i]),kbformula[i])  #printout all formulas
+			if(score > s ):	#finds nearest formula
+				s = score
+				#print(len(cleanformula),len(maxform),cleanformula,maxform)
 				maxform = kbformula[i]
 				maxchi = kbTruthArrays[i]
-	print("TruthArrays Built")
-	print("phi:",phi)
-	print("chi:",maxchi,maxform,s)
+			elif(score == s): #finds equal formula
+				if(getLen(cleanformula) < getLen(maxform)): #takes shorter equal formula
+					maxform = kbformula[i]
+					maxchi = kbTruthArrays[i]
+		print("TruthArrays Built")
+		print("phi:",phi)
+		print("chi:",maxchi,maxform,s)
 	
-	print("search for combined formulas with AND ad OR...")
-	#combining any two formulas in the knowledgebase together to find equal formula
-	found = False
-	for i in range(0,z):
-		if(i == p):
-			print("1/8 done")
-		elif(i == 2*p):
-			print("2/8 done")
-		elif(i == 3*p):
-			print("3/8 done")
-		elif(i == 4*p):
-			print("4/8 done")
-		elif(i == 5*p):
-			print("5/8 done")
-		elif(i == 6*p):
-			print("6/8 done")
-		elif(i == 7*p):
-			print("7/8 done")
-		for j in range(i,z):
-			chi = andArray(kbTruthArrays[i], kbTruthArrays[j]) # AND the two arrays
+		print("search for combined formulas with AND ad OR...")
+		#combining any two formulas in the knowledgebase together to find equal formula
+		found = False
+		for i in range(0,z):
+			if(i == p):
+				print("1/8 done")
+			elif(i == 2*p):
+				print("2/8 done")
+			elif(i == 3*p):
+				print("3/8 done")
+			elif(i == 4*p):
+				print("4/8 done")
+			elif(i == 5*p):
+				print("5/8 done")
+			elif(i == 6*p):
+				print("6/8 done")
+			elif(i == 7*p):
+				print("7/8 done")
+			for j in range(i,z):
+				chi = andArray(kbTruthArrays[i], kbTruthArrays[j]) # AND the two arrays
 			#Integrating Formulas also into the knowledge base... As it takes to long, i commented it out
 			#IsChiInArr = False
 			#for r in range(0,z):
@@ -418,15 +432,15 @@ def kbBuilderFind(phi):
 			#	kbformula[z] = "( "+kbformula[i]+" \\land "+kbformula[j]+" )"
 			#	kbTruthArrays[z] = chi
 			#	z+=1
-			if(chi==phi):
-				found = True
-				form = "( "+kbformula[i]+" \\land "+kbformula[j]+" )"
-				if(s < chilen or getLen(maxform) > getLen(form)):
-					maxform = form
-					maxchi = getTruthArray(form)
-				break
+				if(chi==phi):
+					found = True
+					form = "( "+kbformula[i]+" \\land "+kbformula[j]+" )"
+					if(s < chilen or getLen(maxform) > getLen(form)):
+						maxform = form
+						maxchi = getTruthArray(form)
+					break
 			
-			chi = orArray(kbTruthArrays[i], kbTruthArrays[j]) # OR the two arrays
+				chi = orArray(kbTruthArrays[i], kbTruthArrays[j]) # OR the two arrays
 			#Integrating Formulas also into the knowledge base... As it takes to long, i commented it out
 			#IsChiInArr = False
 			#for r in range(0,z):
@@ -438,22 +452,21 @@ def kbBuilderFind(phi):
 			#	kbformula[z] = "( "+kbformula[i]+" \\land "+kbformula[j]+" )"
 			#	kbTruthArrays[z] = chi
 			#	z+=1
-			if(chi==phi):
-				found = True
-				form = "( "+kbformula[i]+" \\lor "+kbformula[j]+" )"
-				if(s < chilen or getLen(maxform) > getLen(form)):
-					maxform = form
-					maxchi = getTruthArray(form)
-				break
-	print("used ",z,"different formulas/chivalues")
-	if(found):		
-		print("Formula found: ",maxform)
-	else:
-		print("nearest Formula found: ",maxform)
-	print("Length:",getLen(maxform),"Score:",scoreForm(phi, maxchi),"/",chilen)
-	print("phi",phi)
-	print("chi",maxchi)
-	
+				if(chi==phi):
+					found = True
+					form = "( "+kbformula[i]+" \\lor "+kbformula[j]+" )"
+					if(s < chilen or getLen(maxform) > getLen(form)):
+						maxform = form
+						maxchi = getTruthArray(form)
+					break
+		print("used ",z,"different formulas/chivalues")
+		if(found):		
+			print("Formula found: ",maxform)
+		else:
+			print("nearest Formula found: ",maxform)
+		print("Length:",getLen(maxform),"Score:",scoreForm(phi, maxchi),"/",chilen)
+		print("phi",phi)
+		print("chi",maxchi)
 	return maxform
 	
 
@@ -843,7 +856,7 @@ def buildFormula(phi):
 	return form
 
 def shortenFormula(phi):
-	
+	global originalvar
 	global chiForm
 	kblen = len(chiForm)
 	chi = [0]*kblen # truthtable values of short formulas
@@ -852,11 +865,12 @@ def shortenFormula(phi):
 	#outForm = buildFormula(phi)
 	#print(outForm)
 	#outForm = buildAndOrformula(phi)
-	formulaClassifier(phi)
-	#outForm = buildFormulaIntelOr(phi)
-	buildWithNearest(phi)
-	outForm = buildFormulaIntelAndOr(phi) # may not be correct in any case
-	kbBuilderFind(phi)
+	if originalvar:
+		formulaClassifier(phi)
+		#outForm = buildFormulaIntelOr(phi)
+		buildWithNearest(phi)
+		outForm = buildFormulaIntelAndOr(phi) # may not be correct in any case
+	outForm = kbBuilderFind(phi)
 	return outForm
 	
 # scoring the differences between the forms
@@ -864,10 +878,14 @@ def shortenFormula(phi):
 # Max = 16
 # Min = 0
 def scoreForm(phi, chi):
+	global var
 	score = 0
-	for i in range(0,16):
-		if(chi[i]==phi[i]):
-			score+=1
+	if len(chi) == len(phi):
+		for i in range(0,len(chi)):
+			if(chi[i]==phi[i]):
+				score+=1
+	else:
+		print("error in scoreForm, len not the same: chi:",len(chi),"phi:",len(phi))
 	return score
 
 # Punish false positive -> phi = 0, chi = 1
@@ -929,9 +947,8 @@ def printTruthTable(formula):
 		#print(values)
 		phi[i] = truthValueFromFormula(formula, values)
 		print(values,"| ",phi[i])
-	print()
-	print("-----------------------------------")
-	print(shortenFormula(phi))
+	return phi 
+	
 
 def getFormulaFromPhi():
 	phi = ['0', '0', '0', '1', '0', '0', '1', '0', '1', '1', '0', '0', '1', '0', '1', '0']
@@ -954,7 +971,10 @@ def main():
 		choose = input("What do you want to do? \nShorten formula (s) \nBuild formula from phi (b)\n")
 		if(choose == "s"):
 			formula = input("insert the formula: ")
-			printTruthTable(cleanFormula(formula))
+			phi = printTruthTable(cleanFormula(formula))
+			print()
+			print("-----------------------------------")
+			print(shortenFormula(phi))
 		else:
 			getFormulaFromPhi()
 			
