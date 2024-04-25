@@ -23,12 +23,10 @@
 
 import sys
 
-
-
-var = [" a "," b "," c "," d "] #the original var
-originalvar = True  #if not using the original var put this to false
+#var = [" a "," b "," c "," d "] #the original var
+originalvar = False  #if not using the original var put this to false
 #!!! IMPORTANT: if making own var array, make shure you make spaces on the left and the right of the variable !!!
-#var = [" A "," B "," C "]
+var = [" A "," B "," C "]
 #var = [" x "," y "," z "]
 concat = ["\\land","\\lor","\\rightarrow", "\\leftrightarrow" ]
 neg = "\\lnot"
@@ -548,9 +546,10 @@ def truthValueFromFormula(formula,values):
 		formula = shortenValues(formula, 3)
 		#print(formula,len(formula), erc)
 	if(erc >= len(formula)):
-		print("--------------------- Error -----------------------------")
-		print("Interrupted endless loop, the Formula couldn't get solved")
-		print("---------------------- !!! ------------------------------")
+		print("---------------------- Error ------------------------------")
+		print(" Interrupted endless loop, the Formula couldn't get solved ")
+		print("Please make shure the Formula is logically correctly formed")
+		print("----------------------- !!! -------------------------------")
 		print(formula,len(formula), erc)
 		formula = -1
 	return formula
@@ -687,6 +686,8 @@ def getTruthArray(formula):
 				values[j] = " 0 "
 			d*=2
 		chi[i] = truthValueFromFormula(formula, values)
+		if(chi[i]==-1):
+			break
 	return chi
 
 # all differences = 1
@@ -946,6 +947,8 @@ def printTruthTable(formula):
 			d*=2
 		#print(values)
 		phi[i] = truthValueFromFormula(formula, values)
+		if(phi[i]==-1):
+			break
 		print(values,"| ",phi[i])
 	return phi 
 	
